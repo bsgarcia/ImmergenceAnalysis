@@ -93,7 +93,38 @@ end
     statNumber, startGood, partnersType, proposedGood, willToExchange);
 
 
+
 % Plotting Speculation - Behaviours + Models
 %-------------------------------------------
 
+for sub = 1:numel(subjects)
+    spec(sub) = sum(observedSpeculation{sub});
+end
+
 plotSpeculation(speculation_data, speculation_model, index);
+xlabel('Trials')
+ylabel('Average Speculation')
+title('Behavioral data')
+saveas(gcf, sprintf('spec.png'));
+
+figure('Position', [1,1,700,500]);
+% 
+    scatterCorr(...
+        spec',....
+        (speculationFrequency_data)',...
+        blue_color,...
+        0.6,...
+        1,...
+        1 ...
+        );
+%     
+    set(gca,'TickDir','out')
+
+    ylabel('Speculation frequency');
+    xlabel('Number of observed speculation strategies');
+    %ylim([.4, 1])
+   % title(titles{i});
+%     
+    mkdir('./', 'figs');
+    saveas(gcf, sprintf('corr_freq.png'));
+    

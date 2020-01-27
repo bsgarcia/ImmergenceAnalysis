@@ -7,13 +7,15 @@ clc
 file = 'data';
 
 [out, cho, con, willToExchange, startGood, partnersType, proposedGood, statNumber,...
-    subjects, lastR, economyParameters, actualExchange, priors] = getVariables(file);
+    subjects, lastR, economyParameters, actualExchange, priors, observedSpeculation] = getVariables(file);
+
+blue_color = [0.0274 0.427 0.494];
 
 clear file
 
 
 function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, statNumber,...
-    subjects, lastR, economyParameters, actualExchange, priors] = getVariables(file)
+    subjects, lastR, economyParameters, actualExchange, priors, observedSpeculation] = getVariables(file)
 
     % ------------------------------------------------------------------- %
     % Import raw data and mimic previously used data structure                
@@ -30,7 +32,7 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
 
     cellsToModify = {data.startGood',...
         data.partnersType',...
-        data.proposedGood'};
+        data.proposedGood', data.randGrLeftType', data.randGrLeftGood', data.randGrRightGood', data.randGrRightType'};
 
     for i = 1:numel(cellsToModify)
         cellsToModify{i}(strcmp(cellsToModify{i}, 'cyan')) = {1};
@@ -41,7 +43,11 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
     startGood = cellsToModify{1};
     partnersType = cellsToModify{2};
     proposedGood = cellsToModify{3};
-
+    randGrLeftType = cellsToModify{4};
+    randGrLeftGood = cellsToModify{5};
+    randGrRightGood = cellsToModify{6};
+    randGrRightType = cellsToModify{7};
+    
     statNumber = data.realNumber';
     subjects = unique(statNumber);
     templastR = zeros(length(subjects), 201);
@@ -65,6 +71,8 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
         [9, NaN, 10];...
         [11, 12, NaN]}, ...
     };
+
+    observedSpeculationMap = @(x, y, z, z2) ((x==2)*(y==1)*(z==3)*(z2==2));
     
     % same priors as before
     priors(1:2) = {[-0.0400000000000000,-0.0400000000000000;...
@@ -94,9 +102,12 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
             goodHold = startGood{mask};
             goodProposed = proposedGood{mask};
             typeOfPartner = partnersType{mask};
-            con{sub}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed);        
+            con{sub}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed); 
+            observedSpeculation{sub}(t) = observedSpeculationMap(...
+                randGrLeftGood{mask}, randGrLeftType{mask}, randGrRightGood{mask}, randGrRightType{mask});
+            
         end
-        
+   
     end
     
     proposedGood = cell2mat(proposedGood');

@@ -30,7 +30,7 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
 
     cellsToModify = {data.startGood',...
         data.partnersType',...
-        data.proposedGood'};
+        data.proposedGood', data.randGrLeftType', data.randGrLeftGood', data.randGrRightGood'};
 
     for i = 1:numel(cellsToModify)
         cellsToModify{i}(strcmp(cellsToModify{i}, 'cyan')) = {1};
@@ -41,8 +41,11 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
     startGood = cellsToModify{1};
     partnersType = cellsToModify{2};
     proposedGood = cellsToModify{3};
-
-    statNumber = data.realNumber;
+    randGrLeftType = cellsToModify{4};
+    randGrLeftGood = cellsToModify{5};
+    randGrRightGood = cellsToModify{6};
+    
+    statNumber = data.realNumber';
     subjects = unique(statNumber);
     templastR = zeros(length(subjects), 201);
     templastR(:, 201) = 1;
@@ -53,10 +56,6 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
     
     clear i templastR
     
-%     actualExchange = {...
-%         data.willToExchange .* ...
-%         data.partnersWillToExchange};
-%     actualExchange = num2cell(actualExchange{1}');
 
     % con map blue subject may hold good yellow and magenta (2, 3)
     % conceived based on cond infographic
@@ -69,6 +68,8 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
         [9, NaN, 10];...
         [11, 12, NaN]}, ...
     };
+
+    observedSpeculationMap = @(x, y, z) ((x==1)*(y==3)*(z==1);
     
     % same priors as before
     priors(1:2) = {[-0.0400000000000000,-0.0400000000000000;...
@@ -98,8 +99,15 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
             goodHold = startGood{mask};
             goodProposed = proposedGood{mask};
             typeOfPartner = partnersType{mask};
-            con{sub}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed);        
+            con{sub}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed); 
+            
         end
         
     end
+    
+    proposedGood = cell2mat(proposedGood');
+    startGood = cell2mat(startGood');
+    partnersType = cell2mat(partnersType');
+    statNumber = statNumber';
+    willToExchange = willToExchange';
 end

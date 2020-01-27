@@ -11,9 +11,7 @@ color_speculators    = [8/255 120/255 164/255];
 
 ntrialplot = 14;
 
-figure;
-
-subplot(1,3,1)
+figure('Position', [1,1,700,500]);
 
 meanNS_data = mean(speculation_data(1:ntrialplot,index==0)');
 semNS_data  = std(speculation_data(1:ntrialplot,index==0)') ./sqrt(sum(index==0));  
@@ -45,7 +43,7 @@ ylim([0 1])
 
 axis square
 
-
+return 
 subplot(1,3,2)
 
 SurfaceCurvePlot(speculation_data(1:ntrialplot,index==0),[2 2 2],[0.9 0.9 0.9],1,1,0,1,10,'','','')

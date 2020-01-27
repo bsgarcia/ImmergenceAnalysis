@@ -7,14 +7,14 @@ variableExtractionFromRawData;
 %----------------------------
 nsub = numel(subjects);
 init = {[50, .5, .5], [50, .5, .5]};
-lb = {[0.01, 0, 0], [0, 0, 0]};
+lb = {[0.01, 0, 0], [0.01, 0, 0]};
 ub = {[100, 1, 1], [100, 1, 1]};
 options = optimset(...
     'Algorithm',...
     'interior-point',...
     'Display', 'off',...
-    'MaxIter', 10000,...
-    'MaxFunEval', 10000);
+    'MaxIter', 10000*5,...
+    'MaxFunEval', 10000*5);
 
 w = waitbar(0, 'Fitting subject');
 
@@ -96,4 +96,30 @@ end
 % Plotting Speculation - Behaviours + Models
 %-------------------------------------------
 
-plotSpeculation(speculation_data, speculation_model, index);
+for sub = 1:numel(subjects)
+    spec(sub) = sum(observedSpeculation{sub});
+end
+
+%plotSpeculation(speculation_data, speculation_model, index);
+
+figure('Position', [1,1,700,500]);
+
+    scatterCorr(...
+        repmat(spec, [1, 2])',....
+        repmat(spec, [1, 2])(speculationFrequency_data)',...
+        'b',...
+        0.7,...
+        1,...
+        1 ...
+        );
+%     
+    set(gca,'TickDir','out')
+
+    ylabel('Speculation frequency');
+    xlabel('Observed speculation');
+    %ylim([.4, 1])
+   % title(titles{i});
+%     
+    mkdir('./', 'figs');
+    saveas(gcf, sprintf('corr_freq'));
+    
