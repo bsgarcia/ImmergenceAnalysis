@@ -1,8 +1,9 @@
 % This function generates the likelihood of each model/parameters
 %----------------------------------------------------------------
 function ll = getLL(params, s, a, r, model, goodPriors, lastR, economyParameters,actualExchange)
-
-
+    
+    ll = 0;
+    
     % Parameters Definition
     %----------------------
 
@@ -33,15 +34,17 @@ function ll = getLL(params, s, a, r, model, goodPriors, lastR, economyParameters
     %------------------------
 
     for i = 1 : length(a)
+        
+        ll = ll + Q(s(i), a(i))*(1/temp)...
+            - log(sum(exp(Q(s(i), :).*(1/temp))));
 
         if model==1                              % TD-RL
     %___________________________________________________
-
             % Model Prediction / Decision
             %----------------------------
 
-            [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
-
+            %[Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
+            
             % Learning Phase
             %---------------
 
@@ -55,11 +58,13 @@ function ll = getLL(params, s, a, r, model, goodPriors, lastR, economyParameters
             % Model Prediction / Decision
             %----------------------------
 
-            [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
+            %[Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
+            
 
             % Learning Phase
             %---------------
 
+            
             if i == 1
                 qYellow = -economyParameters(3);
                 qPink   = -economyParameters(4);
@@ -68,7 +73,21 @@ function ll = getLL(params, s, a, r, model, goodPriors, lastR, economyParameters
             [Q, qYellow, qPink] = oCRL_update(i, s, r, a, Q, alpha, alphaC, actualExchange, economyParameters, qYellow, qPink);
 
         end
+        
+         elseif model==3                       % Imitation
+    %___________________________________________________
+
+        % Model Prediction / Decision
+        %----------------------------
+        
+        [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
+
+      
+        Q = socialCF_update(i, s{1}, s{2} r{1}, a{1}, a{2}, Q, alpha, alphaC, alphaS, actualExchange);
+
+        
     end
-    ll = -sum(Pc);
     
+   %ll = -sum(log(Pc));
+   ll = -ll;
 end

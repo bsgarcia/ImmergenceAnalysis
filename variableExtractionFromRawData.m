@@ -52,7 +52,6 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
     end
     
     clear i templastR
-    
 
     % con map blue subject may hold good yellow and magenta (2, 3)
     % conceived based on cond infographic
@@ -84,10 +83,10 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
         
         out{sub} = ...
             (data.currentConsumption(data.realNumber==sub)...
-            -data.currentStockCost(data.realNumber==sub))'./100;
+            -data.currentStockCost(data.realNumber==sub))./100;
         actualExchange{sub} = (data.willToExchange(data.realNumber==sub) .* ...
-        data.partnersWillToExchange(data.realNumber==sub))';
-        cho{sub} = data.willToExchange(data.realNumber==sub)'+1;
+        data.partnersWillToExchange(data.realNumber==sub));
+        cho{sub} = data.willToExchange(data.realNumber==sub)+1;
         
         for t = 1:length(out{sub})
             mask = logical((data.realNumber==sub).*(data.nRound==t));

@@ -1,12 +1,15 @@
 %% This Script Plots Behavioural and Computational Data
 %______________________________________________________
+clear all
+close all
+%load Data_LearningToSpeculate_2018.mat
 variableExtractionFromRawData;
-
-
+%return
+%clear ll
 % Fitting each model
 %----------------------------
 nsub = numel(subjects);
-init = {[50, .5, .5], [50, .5, .5]};
+init = {[0.5, .5, .5], [.5, .5, .5]};
 lb = {[0.01, 0, 0], [0.01, 0, 0]};
 ub = {[100, 1, 1], [100, 1, 1]};
 options = optimset(...
@@ -26,7 +29,7 @@ for model = 1:2
         waitbar(...
             sub/nsub,...  % Compute progression
             w,...
-            sprintf('%s%d', 'Fitting subject ', sub)...
+            sprintf('Fitting subject %d with model %d', sub, model)...
             );
         
         [
@@ -59,11 +62,9 @@ for model = 1:2
         
     end
 end
-      
-close(w);
-    
 
-%load Data_LearningToSpeculate_2018.mat
+close(w);
+   
 
 % Computing Model Predictions
 %----------------------------

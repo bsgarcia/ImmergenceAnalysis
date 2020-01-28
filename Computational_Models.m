@@ -27,6 +27,7 @@ if model == 3 % imitation
     temp   = params(1);
     alpha  = params(2);
     alphaC = params(3);
+    alphaS = params(4);
 end
 
 % Variables Initialization
@@ -75,19 +76,18 @@ for i = 1 : length(a)
         [Q, qYellow, qPink] = oCRL_update(i, s, r, a, Q, alpha, alphaC, actualExchange, economyParameters, qYellow, qPink);
 
     
+    elseif model==3                       % Imitation
+    %___________________________________________________
+
+        % Model Prediction / Decision
+        %----------------------------
+        
+        [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
+
+      
+        Q = socialCF_update(i, s{1}, s{2} r{1}, r{2}, a{1}, a{2}, Q, alpha, alphaC, alphaS, actualExchange);
+
     end
-%     elseif model==3                       % Imitation
-%     %___________________________________________________
-% 
-%         % Model Prediction / Decision
-%         %----------------------------
-%         
-%         [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
-% 
-%       
-%         Q = socialCF_update(i, s{1}, s{2} r{1}, r{2}, a{1}, a{2}, Q, alpha, alphaC, actualExchange);
-% 
-%     end
 end
 
 Cm = Cm'-1;

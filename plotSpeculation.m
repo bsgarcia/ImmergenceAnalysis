@@ -15,6 +15,7 @@ figure;
 
 subplot(1,3,1)
 
+
 meanNS_data = mean(speculation_data(1:ntrialplot,index==0)');
 semNS_data  = std(speculation_data(1:ntrialplot,index==0)') ./sqrt(sum(index==0));  
 
@@ -43,6 +44,8 @@ box off
 xlim([0.5 ntrialplot+0.5])
 ylim([0 1])
 
+title('Behavioral Data');
+
 axis square
 
 
@@ -52,6 +55,7 @@ SurfaceCurvePlot(speculation_data(1:ntrialplot,index==0),[2 2 2],[0.9 0.9 0.9],1
 hold on
 SurfaceCurvePlot(speculation_data(1:ntrialplot,index==1),[2 2 2],[0.9 0.9 0.9],1,1,0,1,10,'','','')
 hold on
+title('TD-RL');
 
 
 meanNS_model = mean(speculation_model{1}(1:ntrialplot,index==0)');
@@ -88,6 +92,9 @@ SurfaceCurvePlot(speculation_data(1:ntrialplot,index==0),[2 2 2],[0.9 0.9 0.9],1
 hold on
 SurfaceCurvePlot(speculation_data(1:ntrialplot,index==1),[2 2 2],[0.9 0.9 0.9],1,1,0,1,10,'','','')
 hold on
+
+title('OC-RL');
+
 
 meanNS_model = mean(speculation_model{2}(1:ntrialplot,index==0)');
 semNS_model  = std(speculation_model{2}(1:ntrialplot,index==0)')./sqrt(sum(index==0));  

@@ -9,7 +9,7 @@ function plotSpeculation(speculation_data, speculation_model, index)
 color_nonSpeculators = [213/255 155/255 45/255];
 color_speculators    = [8/255 120/255 164/255];
 
-ntrialplot = 200;
+ntrialplot = 14;
 
 figure;
 
@@ -52,6 +52,7 @@ SurfaceCurvePlot(speculation_data(1:ntrialplot,index==0),[2 2 2],[0.9 0.9 0.9],1
 hold on
 SurfaceCurvePlot(speculation_data(1:ntrialplot,index==1),[2 2 2],[0.9 0.9 0.9],1,1,0,1,10,'','','')
 hold on
+title('TD-RL');
 
 
 meanNS_model = mean(speculation_model{1}(1:ntrialplot,index==0)');
@@ -88,6 +89,9 @@ SurfaceCurvePlot(speculation_data(1:ntrialplot,index==0),[2 2 2],[0.9 0.9 0.9],1
 hold on
 SurfaceCurvePlot(speculation_data(1:ntrialplot,index==1),[2 2 2],[0.9 0.9 0.9],1,1,0,1,10,'','','')
 hold on
+
+title('OC-RL');
+
 
 meanNS_model = mean(speculation_model{2}(1:ntrialplot,index==0)');
 semNS_model  = std(speculation_model{2}(1:ntrialplot,index==0)')./sqrt(sum(index==0));  
