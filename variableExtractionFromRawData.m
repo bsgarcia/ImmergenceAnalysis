@@ -4,16 +4,47 @@ clear all
 close all
 clc
 
-file = 'data';
+for i = 1:3
+    file = sprintf('data%d', i);
 
-[out, cho, con, willToExchange, startGood, partnersType, proposedGood, statNumber,...
-    subjects, lastR, economyParameters, actualExchange, priors] = getVariables(file);
+    if i == 1
+    [out, cho, con, cfcon, cfcho, willToExchange, startGood, partnersType, proposedGood, statNumber,...
+    lastR, economyParameters, actualExchange, priors, observedSpeculation] = getVariables(file);
+    else
+        
+        data = load(file);
+        data = data.data;
+    
+        start_sub = length(out)+1;
+        ending_sub = start_sub+length(unique(data.realNumber));
+        
+        start_all = length(partnersType)+1;
+        ending_all = start_all + length(data.partnersType);
+        
+             
+        [out{1, start_sub:ending_sub},...
+            cho{1, start_sub:ending_sub},...
+            con{1, start_sub:ending_sub},...
+            cfcon{1, start_sub:ending_sub},...
+            cfcho{1, start_sub:ending_sub},...
+            willToExchange(start_all:ending_all, 1),...
+            startGood(start_all:ending_all, 1),...
+            partnersType(start_all:ending_all, 1),...
+            proposedGood(start_all:ending_all, 1),...
+            statNumber(start_all:ending_all, 1),...
+            lastR{1, start_sub:ending_sub}, economyParameters,...
+            actualExchange{1, start_sub:ending_sub}, priors,...
+            observedSpeculation{1, start_sub:ending_sub}] = getVariables(file,i);
+    end
+end
+
+blue_color = [0.0274 0.427 0.494];
 
 clear file
 
 
-function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, statNumber,...
-    subjects, lastR, economyParameters, actualExchange, priors] = getVariables(file)
+function [out, cho, con, cfcon, cfcho, willToExchange, startGood, partnersType, proposedGood, statNumber,...
+    lastR, economyParameters, actualExchange, priors, observedSpeculation] = getVariables(file,i)
 
     % ------------------------------------------------------------------- %
     % Import raw data and mimic previously used data structure                
@@ -30,7 +61,7 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
 
     cellsToModify = {data.startGood',...
         data.partnersType',...
-        data.proposedGood'};
+        data.proposedGood', data.randGrLeftType', data.randGrLeftGood', data.randGrRightGood', data.randGrRightType'};
 
     for i = 1:numel(cellsToModify)
         cellsToModify{i}(strcmp(cellsToModify{i}, 'cyan')) = {1};
@@ -41,12 +72,17 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
     startGood = cellsToModify{1};
     partnersType = cellsToModify{2};
     proposedGood = cellsToModify{3};
-
-    statNumber = data.realNumber';
-    subjects = unique(statNumber);
+    randGrLeftType = cellsToModify{4};
+    randGrLeftGood = cellsToModify{5};
+    randGrRightGood = cellsToModify{6};
+    randGrRightType = cellsToModify{7};
+    
+    statNumber = data.realNumber'+(i*100);
+    subjects = unique(data.realNumber');
     templastR = zeros(length(subjects), 201);
     templastR(:, 201) = 1;
-
+    
+    clear i 
     for i = 1:length(subjects)
         lastR{1, i} = templastR(i, :);
     end
@@ -64,6 +100,8 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
         [9, NaN, 10];...
         [11, 12, NaN]}, ...
     };
+
+    observedSpeculationMap = @(x, y, z, z2) ((x==2)*(y==1)*(z==3)*(z2==2));
     
     % same priors as before
     priors(1:2) = {[-0.0400000000000000,-0.0400000000000000;...
@@ -78,24 +116,36 @@ function [out, cho, con, willToExchange, startGood, partnersType, proposedGood, 
         -0.0900000000000000,-0.0900000000000000;...
         -0.0900000000000000,0.960000000000000;...
         -0.0900000000000000,-0.0400000000000000]};
-
+    
+    i = 0;
     for sub = subjects
+        i = i + 1;
         
-        out{sub} = ...
+        out{i} = ...
             (data.currentConsumption(data.realNumber==sub)...
             -data.currentStockCost(data.realNumber==sub))./100;
-        actualExchange{sub} = (data.willToExchange(data.realNumber==sub) .* ...
+        actualExchange{i} = (data.willToExchange(data.realNumber==sub) .* ...
         data.partnersWillToExchange(data.realNumber==sub));
-        cho{sub} = data.willToExchange(data.realNumber==sub)+1;
+        cho{i} = data.willToExchange(data.realNumber==sub)+1;
         
-        for t = 1:length(out{sub})
+        for t = 1:length(out{i})
             mask = logical((data.realNumber==sub).*(data.nRound==t));
             goodHold = startGood{mask};
             goodProposed = proposedGood{mask};
             typeOfPartner = partnersType{mask};
-            con{sub}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed);        
+            con{i}(t) = conMap{goodHold}{typeOfPartner, 1}(goodProposed); 
+            observedSpeculation{i}(t) = observedSpeculationMap(...
+                randGrLeftGood{mask}, randGrLeftType{mask}, randGrRightGood{mask}, randGrRightType{mask});
+            if randGrLeftType{mask} == 1
+                cfcon{i}(t) = conMap{randGrLeftGood{mask}}{randGrRightType{mask}, 1}(randGrRightGood{mask});
+                cfcho{i}(t) = data.randGrLeftAccepts(mask)+1;
+            else
+                cfcon{i}(t) = -1;
+                cfcho{i}(t) = -1;
+            end
+            
         end
-        
+   
     end
     
     proposedGood = cell2mat(proposedGood');

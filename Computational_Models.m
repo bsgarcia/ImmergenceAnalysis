@@ -29,18 +29,19 @@ if model == 3 % imitation
     alphaC = params(3);
     alphaS = params(4);
 end
+ntrial = length(r);
 
 % Variables Initialization
 %-------------------------
 
 Q  = goodPriors;
-Pc = zeros(1,length(a))+0.5;
-Cm = zeros(1,length(a));
+Pc = zeros(1,ntrial)+0.5;
+Cm = zeros(1,ntrial);
 
 % Predictions Computation
 %------------------------
 
-for i = 1 : length(a)
+for i = 1 : ntrial
     
     if model==1                              % TD-RL
     %___________________________________________________
@@ -82,10 +83,17 @@ for i = 1 : length(a)
         % Model Prediction / Decision
         %----------------------------
         
-        [Cm(i), Pc(i)] = softmax_policy(i, s, Q, 1/temp);
-
-      
-        Q = socialCF_update(i, s{1}, s{2} r{1}, r{2}, a{1}, a{2}, Q, alpha, alphaC, alphaS, actualExchange);
+        [Cm(i), Pc(i)] = softmax_policy(i, s{1}, Q, 1/temp);
+% Learning Phase
+        %---------------
+        
+        if i == 1
+            qYellow = -economyParameters(3);
+            qPink   = -economyParameters(4);
+        end
+        
+          
+        [Q, qYellow, qPink]= socialCF_update(i, s{1}, s{2}, r, a{1}, a{2}, Q, alpha, alphaC, alphaS, actualExchange, economyParameters, qYellow, qPink);
 
     end
 end

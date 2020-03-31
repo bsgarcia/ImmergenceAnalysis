@@ -1,8 +1,7 @@
 % This function updates q-values in the OCRL model
 %-------------------------------------------------
 
-function  [updatedQ, qYellow, qPink] = socialCF_update(i, s, cfs, r, a, cfa, Q, alpha, alphaC, alphaS, actualExchange)
-
+function  [updatedQ, qYellow, qPink] = socialCF_update(i, s, cfs, r, a, cfa, Q, alpha, alphaC, alphaS, actualExchange,  param_extra, qYellow, qPink)
 
 
 if s(i) ~= 2 && s(i) ~= 4 && s(i) ~= 7 && s(i) ~= 12
@@ -14,7 +13,10 @@ if s(i) ~= 2 && s(i) ~= 4 && s(i) ~= 7 && s(i) ~= 12
     deltaI =  r(i) - Q(s(i),a(i));
     
     Q(s(i),a(i)) = Q(s(i),a(i)) + alpha * deltaI;
-    Q(cfs(i), a(i) = Q(s(i), a(i)
+    
+    if cfs(i) ~= -1
+        Q(cfs(i), cfa(i)) = Q(cfs(i), cfa(i)) + alphaS * (1-Q(cfs(i), cfa(i)));
+    end
     
      % Classical Conditionning
     %________________________
